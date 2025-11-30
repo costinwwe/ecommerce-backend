@@ -22,8 +22,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB (non-blocking)
+connectDB().catch(err => {
+  console.error('Failed to connect to MongoDB on startup:', err.message);
+  // Server will still start, MongoDB will retry connection
+});
 
 // Basic route
 app.get('/', (req, res) => {
