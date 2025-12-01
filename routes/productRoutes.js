@@ -153,5 +153,64 @@ router.get('/categories/list', async (req, res) => {
   }
 });
 
+// @route   GET /api/products/low-stock
+// @desc    Get low stock products
+// @access  Private/Admin
+router.get('/low-stock', async (req, res) => {
+  try {
+    const products = await Product.find({
+      $expr: { $lte: ['$stock', { $ifNull: ['$lowStockThreshold', 10] }] },
+      isActive: true
+    }).sort({ stock: 1 });
+
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   POST /api/products/bulk-edit
+// @desc    Bulk edit products
+// @access  Private/Admin
+router.post('/bulk-edit', async (req, res) => {
+  try {
+    const { productIds, updates } = req.body;
+
+    if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
+      return res.status(400).json({ message: 'Product IDs array is required' });
+    }
+
+    const result = await Product.updateMany(
+      { _id: { $in: productIds } },
+      { $set: updates }
+    );
+
+    res.json({
+      message: `Updated ${result.modifiedCount} products`,
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   GET /api/products/tags/list
+// @desc    Get all tags
+// @access  Public
+router.get('/tags/list', async (req, res) => {
+  try {
+    const products = await Product.find({ tags: { $exists: true, $ne: [] } });
+    const allTags = new Set();
+    products.forEach(product => {
+      if (product.tags) {
+        product.tags.forEach(tag => allTags.add(tag));
+      }
+    });
+    res.json(Array.from(allTags));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
 

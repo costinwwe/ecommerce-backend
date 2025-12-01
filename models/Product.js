@@ -21,6 +21,21 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Please provide a product category'],
     trim: true
   },
+  tags: [{
+    type: String,
+    trim: true
+  }],
+  sku: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true
+  },
+  lowStockThreshold: {
+    type: Number,
+    default: 10,
+    min: 0
+  },
   images: [{
     type: String,
     trim: true
@@ -72,10 +87,34 @@ const productSchema = new mongoose.Schema({
   featured: {
     type: Boolean,
     default: false
+  },
+  weight: {
+    type: Number,
+    default: 0
+  },
+  dimensions: {
+    length: Number,
+    width: Number,
+    height: Number
+  },
+  vendor: {
+    type: String,
+    trim: true
+  },
+  metaTitle: {
+    type: String,
+    trim: true
+  },
+  metaDescription: {
+    type: String,
+    trim: true
   }
 }, {
   timestamps: true
 });
+
+// Index for search
+productSchema.index({ name: 'text', description: 'text', tags: 'text' });
 
 const Product = mongoose.model('Product', productSchema);
 

@@ -10,6 +10,13 @@ import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import footerRoutes from './routes/footerRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
+import emailTemplateRoutes from './routes/emailTemplateRoutes.js';
+import activityLogRoutes from './routes/activityLogRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -47,6 +54,13 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/footer', footerRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/email-templates', emailTemplateRoutes);
+app.use('/api/activity-logs', activityLogRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Start server
 app.listen(PORT, () => {

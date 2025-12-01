@@ -90,8 +90,40 @@ const orderSchema = new mongoose.Schema({
   },
   orderStatus: {
     type: String,
-    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'returned', 'refunded'],
     default: 'pending'
+  },
+  trackingNumber: {
+    type: String,
+    trim: true
+  },
+  trackingCompany: {
+    type: String,
+    trim: true
+  },
+  coupon: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Coupon'
+  },
+  discountAmount: {
+    type: Number,
+    default: 0
+  },
+  refundAmount: {
+    type: Number,
+    default: 0
+  },
+  refundReason: {
+    type: String,
+    trim: true
+  },
+  refundedAt: {
+    type: Date
+  },
+  invoiceNumber: {
+    type: String,
+    unique: true,
+    sparse: true
   }
 }, {
   timestamps: true

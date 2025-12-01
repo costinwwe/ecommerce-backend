@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['customer', 'admin'],
+    enum: ['customer', 'admin', 'super_admin', 'order_manager', 'inventory_manager', 'marketing'],
     default: 'customer'
   },
   phone: {
@@ -37,6 +37,29 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  isBanned: {
+    type: Boolean,
+    default: false
+  },
+  marketingPreferences: {
+    newsletter: { type: Boolean, default: true },
+    promotions: { type: Boolean, default: true },
+    sms: { type: Boolean, default: false }
+  },
+  supportNotes: [{
+    note: String,
+    addedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  lastLogin: {
+    type: Date
   }
 }, {
   timestamps: true

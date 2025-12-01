@@ -238,5 +238,93 @@ router.put('/:id/cancel', async (req, res) => {
   }
 });
 
+// @route   PUT /api/orders/:id/tracking
+// @desc    Add/update tracking information
+// @access  Private/Admin
+router.put('/:id/tracking', async (req, res) => {
+  try {
+    const { trackingNumber, trackingCompany } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { trackingNumber, trackingCompany },
+      { new: true }
+    ).populate('user', 'name email').populate('orderItems.product', 'name images');
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.json({
+      message: 'Tracking information updated',
+      order
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   POST /api/orders/:id/refund
+// @desc    Process refund
+// @access  Private/Admin
+router.post('/:id/refund', async (req, res) => {
+  try {
+    const { amount, reason } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const refundAmount = amount || order.totalPrice;
+
+    order.refundAmount = refundAmount;
+    order.refundReason = reason;
+    order.refundedAt = new Date();
+    order.orderStatus = 'refunded';
+    await order.save();
+
+    // Restore stock
+    for (const item of order.orderItems) {
+      await Product.findByIdAndUpdate(item.product, {
+        $inc: { stock: item.quantity }
+      });
+    }
+
+    res.json({
+      message: 'Refund processed successfully',
+      order
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   GET /api/orders/:id/invoice
+// @desc    Generate invoice number
+// @access  Private/Admin
+router.get('/:id/invoice', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Generate invoice number if not exists
+    if (!order.invoiceNumber) {
+      const invoiceNumber = `INV-${Date.now()}-${order._id.toString().slice(-6)}`;
+      order.invoiceNumber = invoiceNumber;
+      await order.save();
+    }
+
+    res.json({
+      invoiceNumber: order.invoiceNumber,
+      order
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
 
